@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"net"
+	"os"
+	"strings"
 )
 
 func logFatal(err error) {
@@ -11,26 +15,23 @@ func logFatal(err error) {
 	}
 }
 
-var (
-	openConnections = make(map[net.Conn]bool)
-	newConnection   = make(chan net.Conn)
-	deadConnection  = make(chan net.Conn)
-)
-
 func main() {
-	ln, err := net.Listen("tcp", ":8080")
+	connection, err := net.Dial("tcp", "localhost:8080")
 	logFatal(err)
 
-	defer ln.Close()
+	defer connection.Close()
 
-	go func() {
-		for {
-			conn, err := ln.Accept()
-			logFatal(err)
+	fmt.Println("Enter your username :")
 
-			openConnections[conn] = true
-			newConnection <- conn
-		}
-	}()
+	reader := bufio.NewReader(os.Stdin)
+	username, err := reader.ReadString('\n')
+
+	logFatal(err)
+
+	username = strings.Trim(username, " \r\n")
+
+	welcomeMessage := fmt.Sprintf("Welcome %s, say hi to your friends.\n", username)
+
+	connection.Write([]byte(welcomeMessage))
 
 }

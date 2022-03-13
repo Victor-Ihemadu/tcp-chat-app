@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"log"
 	"net"
 )
@@ -33,4 +34,29 @@ func main() {
 		}
 	}()
 
+	for {
+		select {
+		case conn := <-newConnection:
+
+		case conn := <-deadConnection:
+		}
+	}
+
+}
+
+func broadcastMessage(conn net.Conn) {
+	for {
+		reader := bufio.NewReader(conn)
+		message, err := reader.ReadString('\n')
+		if err != nil {
+			break
+		}
+
+		for item := range openConnections {
+			if item != conn {
+				item.Write([]byte(message))
+			}
+		}
+
+	}
 }
