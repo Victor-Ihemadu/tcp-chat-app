@@ -37,11 +37,18 @@ func main() {
 	for {
 		select {
 		case conn := <-newConnection:
+			go broadcastMessage(conn)
 
 		case conn := <-deadConnection:
+
+			for item := range openConnections {
+				if item == conn {
+					break
+				}
+			}
+			delete(openConnections, conn)
 		}
 	}
-
 }
 
 func broadcastMessage(conn net.Conn) {
@@ -59,4 +66,5 @@ func broadcastMessage(conn net.Conn) {
 		}
 
 	}
+	deadConnection <- conn
 }
