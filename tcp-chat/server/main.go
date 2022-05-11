@@ -64,7 +64,6 @@ func broadcastMessage(conn net.Conn) {
 				item.Write([]byte(message))
 			}
 		}
-
 	}
 	deadConnection <- conn
 }
